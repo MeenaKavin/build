@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Architect Building Budget Calculator</title>
+<style>
+    :root {
+        --primary-dark: #121212;   /* Deep Studio Black */
+        --hover-slate: #2c3e50;    /* Professional Slate Grey */
+        --accent-gold: #c5a059;    /* Refined Architectural Gold */
+        --bg-light: #f8f9fa;       
+        --text-main: #2d3436;
+        --border-soft: #e0e0e0;
+    }
+
+    body {
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        background-color: var(--bg-light);
+        background-image: radial-gradient(#d1d1d1 0.5px, transparent 0.5px);
+        background-size: 24px 24px;
+        margin: 0;
+        padding: 40px 20px;
+        color: var(--text-main);
+    }
+
+    .container {
+        max-width: 500px;
+        margin: 0 auto;
+        background: #ffffff;
+        padding: 40px;
+        border-radius: 2px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        border-left: 4px solid var(--primary-dark); /* Structural accent */
+    }
+
+    h2 {
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        font-weight: 300;
+        font-size: 1.3rem;
+        margin-bottom: 40px;
+        color: var(--primary-dark);
+    }
+
+    /* Professional Dark Button */
+    button {
+        width: 100%;
+        padding: 16px;
+        background-color: var(--primary-dark); /* Dark primary color */
+        color: #ffffff;
+        border: 1px solid var(--primary-dark);
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+    }
+
+    button:hover {
+        background-color: var(--hover-slate); /* Dark grey hover */
+        border-color: var(--hover-slate);
+        letter-spacing: 4px; /* Subtle expansion effect */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* Clean Input Styling */
+    label {
+        display: block;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 700;
+        color: #999;
+        margin-top: 15px;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px 0;
+        margin-bottom: 15px;
+        border: none;
+        border-bottom: 1px solid var(--border-soft);
+        background: transparent;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+        box-sizing: border-box;
+    }
+
+    input:focus {
+        outline: none;
+        border-bottom: 1px solid var(--primary-dark);
+    }
+
+    /* Result Table */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 30px;
+    }
+
+    th {
+        text-align: left;
+        padding: 12px 5px;
+        border-bottom: 2px solid var(--primary-dark);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        color: #666;
+    }
+
+    td {
+        padding: 12px 5px;
+        border-bottom: 1px solid #eee;
+        font-size: 0.9rem;
+    }
+
+    tr:last-child td {
+        font-weight: 700;
+        background-color: #fcfcfc;
+        color: var(--primary-dark);
+        border-top: 2px solid var(--primary-dark);
+    }
+
+    .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage" class="container">
+    <h2>Architect Budget Calculator</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+</div>
+
+<!-- CUSTOMER DETAILS PAGE -->
+<div id="customerPage" class="container hidden">
+    <h2>Customer Details</h2>
+    <input type="text" id="custName" placeholder="Customer Name">
+    <input type="text" id="custPhone" placeholder="Phone Number">
+    <input type="date" id="custDate" placeholder="Project Date">
+    <input type="text" id="custLocation" placeholder="Project Location">
+    <input type="text" id="custTimeline" placeholder="Expected Timeline">
+    <input type="number" id="custBudget" placeholder="Expected Budget">
+    <button onclick="goToMaterial()">Next</button>
+</div>
+
+<!-- MATERIAL COST UPDATE PAGE -->
+<div id="materialPage" class="container hidden">
+    <h2>Update Today's Material Costs</h2>
+    <p>Dynamic rates for today: <span id="date"></span></p>
+
+    <label>Bricks (per 1000 units)</label>
+    <input type="number" id="bricks">
+
+    <label>Sand (per cubic meter)</label>
+    <input type="number" id="sand">
+
+    <label>Cement (per bag)</label>
+    <input type="number" id="cement">
+
+    <label>Tiles (per sq ft)</label>
+    <input type="number" id="tiles">
+
+    <label>Pumping Materials (per floor)</label>
+    <input type="number" id="pumping">
+
+    <label>Electricity (per floor)</label>
+    <input type="number" id="electricity">
+
+    <label>Water (per floor)</label>
+    <input type="number" id="water">
+
+    <label>Labour Charge (per sq ft)</label>
+    <input type="number" id="labour">
+
+    <button onclick="nextPage()">Next</button>
+</div>
+
+<!-- BUILDING DETAILS PAGE -->
+<div id="inputPage" class="container hidden">
+    <h2>Building Details</h2>
+    <input type="number" id="sqFeet" placeholder="Enter Square Feet">
+    <input type="number" id="floors" placeholder="Enter Number of Floors">
+    <button onclick="askRooms()">Next</button>
+</div>
+
+<!-- ROOMS DETAILS PAGE -->
+<div id="roomPage" class="container hidden">
+    <h2>Rooms Details</h2>
+    <input type="number" id="rooms" placeholder="Number of Rooms">
+    <input type="number" id="kitchens" placeholder="Number of Kitchens">
+    <input type="number" id="bathrooms" placeholder="Number of Bathrooms">
+    <input type="number" id="pooja" placeholder="Number of Pooja Rooms">
+    <button onclick="calculateBudget()">Calculate Budget</button>
+</div>
+
+<!-- RECEIPT PAGE -->
+<div id="receiptPage" class="container hidden">
+    <h2>Budget Receipt</h2>
+    <div id="receipt"></div>
+    <button onclick="downloadPDF()">Download PDF</button>
+</div>
+
+<script>
+    let materialCosts = {};
+    let customerDetails = {};
+
+    function login() {
+        let username = document.getElementById('username').value;
+        let password = document.getElementById('password').value;
+        if(username === "Durgeshwaran" && password === "5356"){
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('customerPage').classList.remove('hidden');
+        } else {
+            alert("Invalid user or password!");
+        }
+    }
+
+    function goToMaterial() {
+        customerDetails.name = document.getElementById('custName').value;
+        customerDetails.phone = document.getElementById('custPhone').value;
+        customerDetails.date = document.getElementById('custDate').value;
+        customerDetails.location = document.getElementById('custLocation').value;
+        customerDetails.timeline = document.getElementById('custTimeline').value;
+        customerDetails.budget = document.getElementById('custBudget').value;
+
+        if(!customerDetails.name || !customerDetails.phone || !customerDetails.date || !customerDetails.location){
+            alert("Please fill all mandatory customer details");
+            return;
+        }
+
+        document.getElementById('customerPage').classList.add('hidden');
+        document.getElementById('materialPage').classList.remove('hidden');
+        document.getElementById('date').innerText = new Date().toDateString();
+    }
+
+    function nextPage(){
+        materialCosts.bricks = parseFloat(document.getElementById('bricks').value);
+        materialCosts.sand = parseFloat(document.getElementById('sand').value);
+        materialCosts.cement = parseFloat(document.getElementById('cement').value);
+        materialCosts.tiles = parseFloat(document.getElementById('tiles').value);
+        materialCosts.pumping = parseFloat(document.getElementById('pumping').value);
+        materialCosts.electricity = parseFloat(document.getElementById('electricity').value);
+        materialCosts.water = parseFloat(document.getElementById('water').value);
+        materialCosts.labour = parseFloat(document.getElementById('labour').value);
+
+        document.getElementById('materialPage').classList.add('hidden');
+        document.getElementById('inputPage').classList.remove('hidden');
+    }
+
+    function askRooms() {
+        let floors = parseInt(document.getElementById('floors').value);
+        let sqFeet = parseFloat(document.getElementById('sqFeet').value);
+
+        if(!sqFeet || !floors || sqFeet<=0 || floors<=0){
+            alert("Please enter valid square feet and number of floors");
+            return;
+        }
+
+        if(floors >= 1){
+            document.getElementById('inputPage').classList.add('hidden');
+            document.getElementById('roomPage').classList.remove('hidden');
+        } else {
+            calculateBudget();
+        }
+    }
+
+    function calculateBudget() {
+        let sqFeet = parseFloat(document.getElementById('sqFeet').value);
+        let floors = parseInt(document.getElementById('floors').value);
+        let rooms = parseInt(document.getElementById('rooms')?.value || 0);
+        let kitchens = parseInt(document.getElementById('kitchens')?.value || 0);
+        let bathrooms = parseInt(document.getElementById('bathrooms')?.value || 0);
+        let pooja = parseInt(document.getElementById('pooja')?.value || 0);
+
+        let bricksQty = Math.ceil(sqFeet * floors * 0.5 + rooms*50 + kitchens*30 + bathrooms*20 + pooja*10);
+        let sandQty = Math.ceil(sqFeet * floors * 0.02 + rooms*1 + kitchens*0.5 + bathrooms*0.3 + pooja*0.2);
+        let cementQty = Math.ceil(sqFeet * floors * 0.01 + rooms*1 + kitchens*0.5 + bathrooms*0.3 + pooja*0.2);
+        let tilesQty = sqFeet * floors + kitchens*100 + bathrooms*50;
+
+        let bricks = materialCosts.bricks * bricksQty / 1000;
+        let sand = materialCosts.sand * sandQty;
+        let cement = materialCosts.cement * cementQty;
+        let tiles = materialCosts.tiles * tilesQty;
+        let pumping = materialCosts.pumping * floors;
+        let electricity = materialCosts.electricity * floors;
+        let water = materialCosts.water * floors;
+        let labour = materialCosts.labour * sqFeet * floors;
+
+        let total = bricks + sand + cement + tiles + pumping + electricity + water + labour;
+
+        let receiptHTML = `
+            <h3>Customer: ${customerDetails.name}</h3>
+            <p>Phone: ${customerDetails.phone} | Date: ${customerDetails.date}</p>
+            <p>Location: ${customerDetails.location} | Timeline: ${customerDetails.timeline} | Budget: ${customerDetails.budget}</p>
+            <table>
+                <tr><th>Material</th><th>Quantity</th><th>Rate</th><th>Cost</th></tr>
+                <tr><td>Bricks</td><td>${bricksQty} units</td><td>${materialCosts.bricks}</td><td>${bricks.toLocaleString()}</td></tr>
+                <tr><td>Sand</td><td>${sandQty} m³</td><td>${materialCosts.sand}</td><td>${sand.toLocaleString()}</td></tr>
+                <tr><td>Cement</td><td>${cementQty} bags</td><td>${materialCosts.cement}</td><td>${cement.toLocaleString()}</td></tr>
+                <tr><td>Tiles</td><td>${tilesQty} sq ft</td><td>${materialCosts.tiles}</td><td>${tiles.toLocaleString()}</td></tr>
+                <tr><td>Pumping Materials</td><td>${floors} floor(s)</td><td>${materialCosts.pumping}</td><td>${pumping.toLocaleString()}</td></tr>
+                <tr><td>Electricity</td><td>${floors} floor(s)</td><td>${materialCosts.electricity}</td><td>${electricity.toLocaleString()}</td></tr>
+                <tr><td>Water</td><td>${floors} floor(s)</td><td>${materialCosts.water}</td><td>${water.toLocaleString()}</td></tr>
+                <tr><td>Labour</td><td>${sqFeet * floors} sq ft</td><td>${materialCosts.labour}</td><td>${labour.toLocaleString()}</td></tr>
+                <tr><th colspan="3">Total</th><th>${total.toLocaleString()}</th></tr>
+            </table>
+        `;
+
+        document.getElementById('roomPage').classList.add('hidden');
+        document.getElementById('inputPage').classList.add('hidden');
+        document.getElementById('receiptPage').classList.remove('hidden');
+        document.getElementById('receipt').innerHTML = receiptHTML;
+    }
+
+    function downloadPDF() {
+        let receiptContent = document.getElementById('receipt').innerHTML;
+        let newWindow = window.open('', '', 'width=800,height=600');
+        newWindow.document.write('<html><head><title>Receipt</title></head><body>');
+        newWindow.document.write('<h1 style="text-align:center;">Building Budget Receipt</h1>');
+        newWindow.document.write(receiptContent);
+        newWindow.document.write('</body></html>');
+        newWindow.document.close();
+        newWindow.print();
+    }
+</script>
+
+</body>
+</html>
